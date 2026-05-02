@@ -550,7 +550,7 @@ class Seq2SeqDataset(Dataset):
 
         if "Paths" not in row.index:
             raise ValueError(
-                "SQUIRE path-supervised training requires a Paths column. "
+                "Path-supervised training requires a Paths column. "
                 "This question file appears to be a multi-answer evaluation file without Paths."
             )
         paths = _parse_paths_cell(row["Paths"])

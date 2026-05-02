@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ### Modify the variables below ###
-ROOT=path/SQUIRE
+ROOT=path/REPO_ROOT_FOLDER
 USE_PARAPHRASED=true/false # choose either "true" or "false"
-CONDA_ENV=name_env # name of the conda environment where SQUIRE is installed
+CONDA_ENV=name_env # name of the conda environment
 ##################################
 
 if [ "$USE_PARAPHRASED" = true ]; then

@@ -17,7 +17,7 @@ from model import TransformerModel
 
 
 def get_args():
-    parser = argparse.ArgumentParser(description="Evaluate pretrained SQUIRE checkpoints.")
+    parser = argparse.ArgumentParser(description="Evaluate pretrained checkpoints.")
     parser.add_argument("--embedding-dim", default=256, type=int)
     parser.add_argument("--hidden-size", default=512, type=int)
     parser.add_argument("--num-layers", default=6, type=int)
@@ -806,7 +806,7 @@ def evaluate(model, dataloader, device, args, true_triples=None, valid_triples=N
                 lines.append(path_token + "\n")
 
     if args.output_path and split_name == "test":
-        with open(os.path.join(args.save_dir, "test_output_squire.txt"), "w") as f:
+        with open(os.path.join(args.save_dir, "test_output.txt"), "w") as f:
             f.writelines(lines)
 
     metric_denominator = max(1, count)
