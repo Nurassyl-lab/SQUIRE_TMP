@@ -1,12 +1,15 @@
 # Description
 
 ### Step 1: Download the dataset and pre-trained models
-``
+In `REPO_ROOT_FOLDER/`
+- `kaggle datasets download -d anonymousrepo1729/kgqa-datasets` downloads the `kgqa-datasets.zip` 
+- `kaggle datasets download -d anonymousrepo1729/kgqa-models` downloads the `kgqa-models.zip`
+
 
 ### Step 2: Extract archived info
 In `REPO_ROOT_FOLDER/`, run the following commands to extract the dataset and pre-trained models:
-- `tar -xf dataset.tar`
-- `tar -xf models_pretrained.tar`
+- `unzip kgqa-datasets.zip`
+- `unzip kgqa-models.zip`
 
 ### Verify Structure
 ```
