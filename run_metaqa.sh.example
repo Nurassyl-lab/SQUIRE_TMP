@@ -1,0 +1,61 @@
+#!/bin/bash
+
+### Modify the variables below ###
+ROOT=path/SQUIRE
+USE_PARAPHRASED=true/false # choose either "true" or "false"
+CONDA_ENV=name_env # name of the conda environment where SQUIRE is installed
+##################################
+
+if [ "$USE_PARAPHRASED" = true ]; then
+    TEST_PARAPHRASED="--test-paraphrased"
+else
+    TEST_PARAPHRASED=""
+fi
+
+BASE_DIR=$ROOT
+DATASET=metaqa
+
+PATH2CSV_EVAL=$ROOT/data/$DATASET/metaqa_nhop.csv
+
+echo "Using dataset: $DATASET"
+echo "Path to evaluation CSV: $PATH2CSV_EVAL"
+
+TEST_BATCH_SIZE=32
+
+EMBEDDING_SIZE=100
+HIDDEN_SIZE=128
+
+MODEL_FOLDER="models_pretrained"
+MODEL_SAVE=$ROOT/$MODEL_FOLDER/metaqa
+
+case "$1" in
+    eval)
+        echo "Evaluation only"
+
+        CKPT_NAME=${2:-best_model.pt}
+
+        if [ ! -f "$MODEL_SAVE/checkpoint/$CKPT_NAME" ]; then
+            echo "Error: checkpoint $MODEL_SAVE/checkpoint/$CKPT_NAME not found"
+            exit 1
+        fi
+
+        PYTHONUNBUFFERED=1 PYTHONPATH="$BASE_DIR" conda run --no-capture-output -n $CONDA_ENV python "$BASE_DIR/evaluation_metaqa.py" \
+            --encoder \
+            --dataset $DATASET \
+            --test-batch-size $TEST_BATCH_SIZE \
+            --save-dir $MODEL_SAVE \
+            --ckpt $CKPT_NAME \
+            --question-file $PATH2CSV_EVAL \
+            --num-workers 4 \
+            --embedding-dim $EMBEDDING_SIZE \
+            --hidden-size $HIDDEN_SIZE \
+            $TEST_PARAPHRASED
+
+        echo "  *Evaluation completed using $MODEL_SAVE/checkpoint/$CKPT_NAME"
+        echo "================================"
+        ;;
+    *)
+        echo "Usage: bash run.sh [eval]"
+        exit 1
+        ;;
+esac

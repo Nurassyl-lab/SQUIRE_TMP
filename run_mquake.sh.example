@@ -1,0 +1,77 @@
+#!/bin/bash
+
+### Modify the variables below ###
+ROOT=path/SQUIRE
+dataType="single/multi" # choose either "single" or "multi"
+USE_PARAPHRASED=true/false # choose either "true" or "false"
+CONDA_ENV=name_env # name of the conda environment where SQUIRE is installed
+##################################
+
+if [ "$USE_PARAPHRASED" = true ]; then
+    TEST_PARAPHRASED="--test-paraphrased"
+else
+    TEST_PARAPHRASED=""
+fi
+
+BASE_DIR=$ROOT
+DATASET=mquake_st
+
+if [ "$dataType" = "multi" ]; then
+    PATH2CSV_EVAL=$ROOT/data/$DATASET/qa_nhop_multi_answer.csv
+else
+    PATH2CSV_EVAL=$ROOT/data/$DATASET/qa_nhop.csv
+fi
+
+echo "Using dataset: $DATASET"
+echo "Using data type: $dataType"
+echo "Path to evaluation CSV: $PATH2CSV_EVAL"
+
+HOP_NUM=4 # max number of hops in the dataset
+
+TEST_BATCH_SIZE=32
+BEAM_SIZE=64
+
+EMBEDDING_SIZE=100
+HIDDEN_SIZE=128
+
+MODEL_FOLDER="models_pretrained"
+if [ "$dataType" = "multi" ]; then
+    MODEL_SAVE=$ROOT/$MODEL_FOLDER/mquake_st_qa_multi_answer
+else
+    MODEL_SAVE=$ROOT/$MODEL_FOLDER/mquake_st_qa
+fi
+
+case "$1" in
+    eval)
+        echo "Evaluation only"
+
+        CKPT_NAME=${2:-best_model.pt}
+
+        if [ ! -f "$MODEL_SAVE/checkpoint/$CKPT_NAME" ]; then
+            echo "Error: checkpoint $MODEL_SAVE/checkpoint/$CKPT_NAME not found"
+            exit 1
+        fi
+
+        PYTHONUNBUFFERED=1 PYTHONPATH="$BASE_DIR" conda run --no-capture-output -n $CONDA_ENV python "$BASE_DIR/evaluation.py" \
+            --encoder \
+            --dataset $DATASET \
+            --max-len $HOP_NUM \
+            --beam-size $BEAM_SIZE \
+            --test-batch-size $TEST_BATCH_SIZE \
+            --save-dir $MODEL_SAVE \
+            --ckpt $CKPT_NAME \
+            --question-file $PATH2CSV_EVAL \
+            --num-workers 4 \
+            --output-path \
+            --embedding-dim $EMBEDDING_SIZE \
+            --hidden-size $HIDDEN_SIZE \
+            $TEST_PARAPHRASED
+
+        echo "  *Evaluation completed using $MODEL_SAVE/checkpoint/$CKPT_NAME"
+        echo "================================"
+        ;;
+    *)
+        echo "Usage: bash run.sh [eval]"
+        exit 1
+        ;;
+esac
