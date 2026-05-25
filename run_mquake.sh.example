@@ -22,7 +22,7 @@ SNAPSHOT_FOLDER=path_mquake_st_qa
 
 PATH2DATA=$ROOT/data/$DATASET
 PATH2CONFIG=$ROOT/AnyBURL/$CONFIG
-
+PATH2SNAPSHOT=$PATH2AnyBURL/$SNAPSHOT_FOLDER/path-1000
 
 if [ "$dataType" = "multi" ]; then
     PATH2CSV_EVAL=$ROOT/data/$DATASET/qa_nhop_multi_answer.csv
@@ -41,6 +41,8 @@ BEAM_SIZE=64
 
 EMBEDDING_SIZE=100
 HIDDEN_SIZE=128
+
+NUM_RULES_FILTER=40 # number of rules to keep after filtering with AnyBURL.
 
 MODEL_FOLDER="models_pretrained"
 if [ "$dataType" = "multi" ]; then
@@ -134,6 +136,32 @@ case "$1" in
             de.unima.ki.anyburl.LearnReinforced \
             $CONFIG
         )
+        echo "================================"
+        ;;
+    step4)
+        echo "Step 4: Generate AnyBURL rules"
+
+        echo "  *NUM_RULES_FILTER: $NUM_RULES_FILTER"
+
+        echo "  *Generating filtered rules and training data with NUM_RULES_FILTER=$NUM_RULES_FILTER"
+        PYTHONPATH="$BASE_DIR" conda run -n squire python "$BASE_DIR/AnyBURL/utils.py" \
+            --dataset $PATH2DATA \
+            --path $PATH2SNAPSHOT \
+            --num $NUM_RULES_FILTER \
+            --ratio 0.6
+
+        PYTHONPATH="$BASE_DIR" conda run -n squire python "$BASE_DIR/check_relations.py" \
+            --path $PATH2DATA/rules.dict
+
+        echo "  *Generating training data with the filtered rules"
+        PYTHONUNBUFFERED=1 PYTHONPATH="$BASE_DIR" conda run --no-capture-output -n squire python "$BASE_DIR/data/utils.py" \
+            --dataset $PATH2DATA \
+            --gen-train-data \
+            --num $NUM_RULES_FILTER \
+            --max-len $HOP_NUM \
+            --out ${NUM_RULES_FILTER}_rev_rule \
+            --skip-reverse-augmentation
+
         echo "================================"
         ;;
     eval)
