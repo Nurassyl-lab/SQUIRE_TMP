@@ -5,6 +5,8 @@ ROOT=path/REPO_ROOT_FOLDER
 dataType="single/multi" # choose either "single" or "multi"
 USE_PARAPHRASED=true/false # choose either "true" or "false"
 CONDA_ENV=name_env # name of the conda environment
+SEED=42 # change the seed for reproducibility
+NUM_EPOCH=500 # number of epochs for training
 ##################################
 
 if [ "$USE_PARAPHRASED" = true ]; then
@@ -25,6 +27,12 @@ PATH2CONFIG=$ROOT/AnyBURL/$CONFIG
 PATH2SNAPSHOT=$PATH2AnyBURL/$SNAPSHOT_FOLDER/path-1000
 
 if [ "$dataType" = "multi" ]; then
+    PATH2CSV=$ROOT/data/$DATASET/reconstructed.csv
+else
+    PATH2CSV=$ROOT/data/$DATASET/qa_nhop.csv
+fi
+
+if [ "$dataType" = "multi" ]; then
     PATH2CSV_EVAL=$ROOT/data/$DATASET/qa_nhop_multi_answer.csv
 else
     PATH2CSV_EVAL=$ROOT/data/$DATASET/qa_nhop.csv
@@ -36,6 +44,7 @@ echo "Path to evaluation CSV: $PATH2CSV_EVAL"
 
 HOP_NUM=4 # max number of hops in the dataset
 
+TRAIN_BATCH_SIZE=256
 TEST_BATCH_SIZE=32
 BEAM_SIZE=64
 
@@ -164,6 +173,33 @@ case "$1" in
 
         echo "================================"
         ;;
+    train)
+        echo "Finally Training..."
+
+        PYTHONUNBUFFERED=1 PYTHONPATH="$BASE_DIR" conda run --no-capture-output -n squire python "$BASE_DIR/train.py" \
+            --mode train \
+            --encoder \
+            --dataset $DATASET \
+            --trainset ${NUM_RULES_FILTER}_rev_rule \
+            --max-len $HOP_NUM \
+            --num-epoch $NUM_EPOCH \
+            --batch-size $TRAIN_BATCH_SIZE \
+            --test-batch-size $TEST_BATCH_SIZE \
+            --beam-size $BEAM_SIZE \
+            --save-dir $MODEL_SAVE \
+            --num-workers 4 \
+            --validate-during-training \
+            --validate-interval 1 \
+            --embedding-dim $EMBEDDING_SIZE \
+            --hidden-size $HIDDEN_SIZE \
+            --seed $SEED \
+            --train-question-file $PATH2CSV \
+            --eval-question-file $PATH2CSV_EVAL
+            # --question-file $PATH2CSV \
+        
+        # echo "  *Training completed. Model saved to $MODEL_SAVE"
+        echo "================================"
+        ;;
     eval)
         echo "Evaluation only"
 
@@ -193,7 +229,7 @@ case "$1" in
         echo "================================"
         ;;
     *)
-        echo "Usage: bash run.sh [eval]"
+        echo "Usage: bash run.sh [step1|step2|step3|step4|train|eval]"
         exit 1
         ;;
 esac
