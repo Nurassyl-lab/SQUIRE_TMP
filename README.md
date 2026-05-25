@@ -1,9 +1,11 @@
 # Description
 
-### Step 1: Download the dataset and pre-trained models
+### Step 1: Download the dataset and pre-trained models and other dependencies
 In `REPO_ROOT_FOLDER/`
 - `kaggle datasets download -d anonymousrepo1729/kgqa-datasets` downloads the `kgqa-datasets.zip` 
 - `kaggle datasets download -d anonymousrepo1729/kgqa-models` downloads the `kgqa-models.zip`
+
+- Install AnyBURL from [https://web.informatik.uni-mannheim.de/AnyBURL/](https://web.informatik.uni-mannheim.de/AnyBURL/)
 
 
 ### Step 2: Extract archived info
@@ -18,7 +20,9 @@ In `REPO_ROOT_FOLDER/`, run the following commands to extract the dataset and pr
 │   ├── kinship/
 │   ├── metaqa/
 │   └── mquake_st/
-│ 
+│
+├── AnyBURL/
+│
 ├── dataset.py
 ├── dictionary.py
 ├── evaluation.py
