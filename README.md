@@ -72,6 +72,7 @@ Inside of those bash shell files: \
 - In order to test with/without paraphrased questions, `USE_PARAPHRASED=true` or `USE_PARAPHRASED=false` in those bash shell files 
 - Change `CONDA_ENV=name_env` to the name of your conda environment. 
 - (Only for Mquake) Change `dataType="single/multi"` to either "single" or "multi" depending on whether you want to evaluate on MQuAKE-Single Answer or MQuAKE-Multi Answer dataset.
+- Use shell script to run the pipeline: step1, step2, step3, step4, .... train, eval
  
 Execute `bash run_metaqa.sh eval` to run evaluation for MetaQA dataset. \
 Execute `bash run_mquake.sh eval` to run evaluation for MQuAKE dataset. \
