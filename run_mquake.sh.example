@@ -13,13 +13,16 @@ else
     TEST_PARAPHRASED=""
 fi
 
+
 BASE_DIR=$ROOT
 DATASET=mquake_st
 CONFIG=config-mquake-st-qa.properties
+SNAPSHOT_FOLDER=path_mquake_st_qa
 
 
 PATH2DATA=$ROOT/data/$DATASET
 PATH2CONFIG=$ROOT/AnyBURL/$CONFIG
+
 
 if [ "$dataType" = "multi" ]; then
     PATH2CSV_EVAL=$ROOT/data/$DATASET/qa_nhop_multi_answer.csv
@@ -113,6 +116,24 @@ case "$1" in
             exit 1
         fi
         echo "  *All required files for training and evaluation have been generated."
+        echo "================================"
+        ;;
+    step3)
+        echo "Step 3 Run AnyBURL with the configuration file $PATH2CONFIG"
+        (
+            cd "$BASE_DIR/AnyBURL" || exit 1
+
+            mkdir -p $SNAPSHOT_FOLDER
+
+            if ! grep -qE "$SNAPSHOT_FOLDER" "$PATH2CONFIG"; then
+                echo "Error: SNAPSHOT_FOLDER not found in config file"
+                exit 1
+            fi
+
+            java -Xmx1G -cp AnyBURL-JUNO.jar \
+            de.unima.ki.anyburl.LearnReinforced \
+            $CONFIG
+        )
         echo "================================"
         ;;
     eval)
