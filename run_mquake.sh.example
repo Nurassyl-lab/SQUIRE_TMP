@@ -15,6 +15,11 @@ fi
 
 BASE_DIR=$ROOT
 DATASET=mquake_st
+CONFIG=config-mquake-st-qa.properties
+
+
+PATH2DATA=$ROOT/data/$DATASET
+PATH2CONFIG=$ROOT/AnyBURL/$CONFIG
 
 if [ "$dataType" = "multi" ]; then
     PATH2CSV_EVAL=$ROOT/data/$DATASET/qa_nhop_multi_answer.csv
@@ -42,6 +47,31 @@ else
 fi
 
 case "$1" in
+    step1)
+        echo "Step 1: Verify that the required data files are present in $PATH2DATA"
+        if [ ! -f "$PATH2DATA/train.txt" ]; then
+            echo "Error: train.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        if [ ! -f "$PATH2DATA/test.txt" ]; then
+            echo "Error: test.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        if [ ! -f "$PATH2DATA/valid.txt" ]; then
+            echo "Error: valid.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        if [ ! -f "$PATH2CSV" ]; then
+            echo "Error: $PATH2CSV not found"
+            exit 1
+        fi
+        if [ ! -f "$PATH2CONFIG" ]; then
+            echo "Error: $PATH2CONFIG not found"
+            exit 1
+        fi
+        echo "  *All required files are present."
+        echo "================================"
+        ;;
     eval)
         echo "Evaluation only"
 
