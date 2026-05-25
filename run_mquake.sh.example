@@ -72,6 +72,49 @@ case "$1" in
         echo "  *All required files are present."
         echo "================================"
         ;;
+    step2)
+        echo "Step 2: Generate mapping and evaluation data using utils.py"
+        PYTHONPATH="$BASE_DIR" conda run -n squire python "$BASE_DIR/data/utils.py" \
+            --dataset $PATH2DATA \
+            --gen-mapping \
+            --skip-reverse-augmentation \
+            --gen-eval-data
+        
+        if [ ! -f "$PATH2DATA/train_triples_rev.txt" ]; then
+            echo "Error: train_triples_rev.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        if [ ! -f "$PATH2DATA/train_triples.txt" ]; then
+            echo "Error: train_triples.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        if [ ! -f "$PATH2DATA/test_triples_rev.txt" ]; then
+            echo "Error: test_triples_rev.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        if [ ! -f "$PATH2DATA/test_triples.txt" ]; then
+            echo "Error: test_triples.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        if [ ! -f "$PATH2DATA/valid_triples_rev.txt" ]; then
+            echo "Error: valid_triples_rev.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        if [ ! -f "$PATH2DATA/valid_triples.txt" ]; then
+            echo "Error: valid_triples.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        if [ ! -f "$PATH2DATA/relation2id.txt" ]; then
+            echo "Error: relation2id.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        if [ ! -f "$PATH2DATA/entity2id.txt" ]; then
+            echo "Error: entity2id.txt not found in $PATH2DATA"
+            exit 1
+        fi
+        echo "  *All required files for training and evaluation have been generated."
+        echo "================================"
+        ;;
     eval)
         echo "Evaluation only"
 
